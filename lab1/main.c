@@ -101,7 +101,7 @@ int main(void)
 
 		while(1)
 		{	
-			printProxs();
+			myWait(10);
 		
 			// Check the front
 			if (cal_prox(0) < 4 || cal_prox(7) < 4 || cal_prox(NE) < 2.5) {
