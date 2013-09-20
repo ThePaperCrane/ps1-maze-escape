@@ -70,6 +70,25 @@ void printProxs(void)
 	btcomSendString(debugMessage);
 }
 
+void checkFront(void)
+{
+	if (cal_prox(0) < 4 || cal_prox(7) < 4 || cal_prox(NE) < 2.5) {
+		if (cal_prox(NE) < 3) {
+			setSpeeds(-200, 200);
+		}
+	} else {
+		setSpeeds(500,500);
+	}
+}
+
+void checkLeft(void)
+{
+	if (cal_prox(6) < 3 || cal_prox(5) < 3) {
+		setSpeeds(200, -200);
+	}
+
+}
+
 int main(void)
 {	
 	myWait(500);					//Wait period to prevent UART clogging
@@ -103,21 +122,11 @@ int main(void)
 		{	
 			myWait(10);
 		
-			// Check the front
-			if (cal_prox(0) < 4 || cal_prox(7) < 4 || cal_prox(NE) < 2.5) {
-				if (cal_prox(NE) < 3) {
-					setSpeeds(-200, 200);
-				}
-			} else {
-				setSpeeds(500,500);
-			}
-
-			// Check the left
-			if (cal_prox(6) < 3 || cal_prox(5) < 3) {
-				setSpeeds(200, -200);
-			}
+			// Check the front, if too close then rotate counterclockwise
+			checkFront();
 
 			// Right side is too far from the wall
+			// turn right to get closer, then balance between E and NE
 			double r = cal_prox(E);
 			double ne = cal_prox(1);
 			while (r > 3) {
@@ -133,6 +142,7 @@ int main(void)
 			}
 
 			// Right side is too close to the wall
+			// turn left, balancing E and NE
 			while (r < 2.5 && ne < 3) {
 				if (cal_prox(0) < 4 || cal_prox(7) < 4 || cal_prox(NE) < 2) {
 					break;
