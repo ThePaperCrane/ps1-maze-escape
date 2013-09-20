@@ -118,16 +118,12 @@ int main(void)
 			double ne = cal_prox(1);
 			while (r > 3) {
 				if (cal_prox(0) < 4 || cal_prox(7) < 4) {
-					sprintf(debugMessage,"FRONT BREAK");
-					btcomSendString(debugMessage);
 					break;
 				}
 				setSpeeds(450,200);
 				if (ne < 5) {
 					setSpeeds(200,400);
 				}
-				sprintf(debugMessage,"prox_front: %f\r\n", cal_prox(0)); 	//..read sensor in front (over the camera)
-				btcomSendString(debugMessage);
 				r = cal_prox(E);
 				ne = cal_prox(1);
 			}
@@ -135,16 +131,12 @@ int main(void)
 			// Too close to the wall, turning right
 			while (r < 2.5 && ne < 3) {
 				if (cal_prox(0) < 4 || cal_prox(7) < 4 || cal_prox(NE) < 2) {
-					sprintf(debugMessage,"FRONT BREAK");
-					btcomSendString(debugMessage);
 					break;
 				}
 				setSpeeds(100,400);
 				if (cal_prox(NE) > 1.5) {
 					setSpeeds(300,100);
 				}
-				sprintf(debugMessage,"Too close. NE %f R %f\r\n", ne, r); 	//..read sensor in front (over the camera)
-				btcomSendString(debugMessage);
 				r = cal_prox(E);
 				ne = cal_prox(NE);
 			}
