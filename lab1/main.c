@@ -101,7 +101,9 @@ int main(void)
 
 		while(1)
 		{	
-			// Front is about to hit
+			printProxs();
+		
+			// Check the front
 			if (cal_prox(0) < 4 || cal_prox(7) < 4 || cal_prox(NE) < 2.5) {
 				if (cal_prox(NE) < 3) {
 					setSpeeds(-200, 200);
@@ -109,11 +111,13 @@ int main(void)
 			} else {
 				setSpeeds(500,500);
 			}
+
+			// Check the left
 			if (cal_prox(6) < 3 || cal_prox(5) < 3) {
 				setSpeeds(200, -200);
 			}
 
-			// Right side is >3cm away from wall
+			// Right side is too far from the wall
 			double r = cal_prox(E);
 			double ne = cal_prox(1);
 			while (r > 3) {
@@ -128,12 +132,13 @@ int main(void)
 				ne = cal_prox(1);
 			}
 
-			// Too close to the wall, turning right
+			// Right side is too close to the wall
 			while (r < 2.5 && ne < 3) {
 				if (cal_prox(0) < 4 || cal_prox(7) < 4 || cal_prox(NE) < 2) {
 					break;
 				}
 				setSpeeds(100,400);
+				myWait(10);
 				if (cal_prox(NE) > 1.5) {
 					setSpeeds(300,100);
 				}
