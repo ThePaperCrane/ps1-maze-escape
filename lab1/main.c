@@ -18,13 +18,14 @@
 
 #define HALF_SPEED 500
 #define FULL_SPEED 1000
-#define RIGHT 2
-#define LEFT 5
+#define E 2
+#define W 5
 #define NE 1
 
 unsigned char sel;					//the position of the selector switch
 char debugMessage[80]; 				//this is some data to store screen-bound debug messages
 
+// Calibrated proximities
 double cal_prox(int sen)
 {
 	double result;
@@ -48,14 +49,24 @@ double cal_prox(int sen)
 	return result;
 }
 
-double err(double prox, int desired)
-{
-	return prox - desired;
-}
-
+// Debug
 void printDebug(char *s)
 {
 	sprintf(debugMessage, s);
+	btcomSendString(debugMessage);
+}
+// Debug
+void printProxs(void) 
+{
+	int i = 0;	
+	for (i; i < 8; i++)
+	{
+		int raw_prox = e_get_prox(i);
+		double calib_prox = cal_prox(i);
+		sprintf(debugMessage,"prox %i raw: %i, calibrated %f\r\n", i, raw_prox, calib_prox); 	//..read sensor in front (over the camera)
+		btcomSendString(debugMessage);
+	}
+	sprintf(debugMessage, "\r\n");
 	btcomSendString(debugMessage);
 }
 
@@ -87,44 +98,23 @@ int main(void)
 	else if(sel==2)					//Read proximity and act accordingly
 	{
 		e_init_prox();
-		
-		btcomWaitForCommand('s');
-		sprintf(debugMessage,"link active\r\n");
-		btcomSendString(debugMessage);
-		while(1)
-		{
-			char command = btcomGetCharacter();							//..read character from keyboard
-			
-			// Print calibrated proxies
-			if(command == 'p')
-			{		
-				int i = 0;	
-				for (i; i < 8; i++)
-				{
-					int raw_prox = e_get_prox(i);
-					double calib_prox = cal_prox(i);
-					sprintf(debugMessage,"prox %i raw: %i, calibrated %f\r\n", i, raw_prox, calib_prox); 	//..read sensor in front (over the camera)
-					btcomSendString(debugMessage);
-				}
-				sprintf(debugMessage, "\r\n");
-				btcomSendString(debugMessage);
-			}
 
-			
+		while(1)
+		{	
 			// Front is about to hit
 			if (cal_prox(0) < 4 || cal_prox(7) < 4 || cal_prox(NE) < 2.5) {
 				if (cal_prox(NE) < 3) {
 					setSpeeds(-200, 200);
 				}
 			} else {
-				setSpeeds(300,300);
+				setSpeeds(500,500);
 			}
 			if (cal_prox(6) < 3 || cal_prox(5) < 3) {
 				setSpeeds(200, -200);
 			}
 
 			// Right side is >3cm away from wall
-			double r = cal_prox(RIGHT);
+			double r = cal_prox(E);
 			double ne = cal_prox(1);
 			while (r > 3) {
 				if (cal_prox(0) < 4 || cal_prox(7) < 4) {
@@ -138,7 +128,7 @@ int main(void)
 				}
 				sprintf(debugMessage,"prox_front: %f\r\n", cal_prox(0)); 	//..read sensor in front (over the camera)
 				btcomSendString(debugMessage);
-				r = cal_prox(RIGHT);
+				r = cal_prox(E);
 				ne = cal_prox(1);
 			}
 
@@ -155,7 +145,7 @@ int main(void)
 				}
 				sprintf(debugMessage,"Too close. NE %f R %f\r\n", ne, r); 	//..read sensor in front (over the camera)
 				btcomSendString(debugMessage);
-				r = cal_prox(RIGHT);
+				r = cal_prox(E);
 				ne = cal_prox(NE);
 			}
 		}													
